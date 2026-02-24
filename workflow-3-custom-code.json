@@ -1,0 +1,54 @@
+{
+  "name": "Workflow 3 - Custom Code Logic",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e4f3267e-c75b-4c08-b6f0-f4d3986f90ed",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      name: \"Omer Farooq\",\n      role: \"Developer\",\n      skills: [\"n8n\", \"JavaScript\", \"Automation\"],\n      message: \"Custom code node is working!\",\n      timestamp: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1f1d96d3-260f-410a-98da-4f3ae1811030",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "66a6dbbf-40bf-40f6-878b-0d7106d121ac",
+  "meta": {
+    "instanceId": "0b8e40bf5deae16f54291e158ce45e46f26103e0aa984221bc27ce19388c7321"
+  },
+  "id": "uBO5iG6ZSKs36HBg2gfKf",
+  "tags": []
+}

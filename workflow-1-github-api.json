@@ -1,0 +1,64 @@
+{
+  "name": "Workflow 1 - GitHub API Integration",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4aca3673-346a-411f-a2d5-cce764beebbd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/users/omerfarooq223",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a4a394e1-2135-4d67-91cd-322c1ecf8b46",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "44793c2a-d4ad-4cad-b520-956a02e00e21",
+  "meta": {
+    "instanceId": "0b8e40bf5deae16f54291e158ce45e46f26103e0aa984221bc27ce19388c7321"
+  },
+  "id": "hNrYpkthcUe9YoW1QbaVA",
+  "tags": []
+}

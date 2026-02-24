@@ -1,0 +1,100 @@
+{
+  "name": "Workflow 2 - Webhook Data Response",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "my-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c58c4c7f-0394-43b0-9d06-1f2a0e51c0d9",
+      "name": "Webhook",
+      "webhookId": "347c6edf-f58f-4762-9cfa-17d6589dd4ea"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "45f043a0-9ffa-4871-be5b-0be5d86c211a",
+              "name": "name",
+              "value": "Omer Farooq",
+              "type": "string"
+            },
+            {
+              "id": "8c7ea7db-9f1d-4a46-88fe-f1d954e4a748",
+              "name": "status",
+              "value": "Workflow is running!",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7bf933c2-e991-4ab3-bc3f-f832b09b9fea",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "40ad4237-9691-4c74-a4ef-662de4f19e1e",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "b6c79629-3e75-4147-931f-801e940c595b",
+  "meta": {
+    "instanceId": "0b8e40bf5deae16f54291e158ce45e46f26103e0aa984221bc27ce19388c7321"
+  },
+  "id": "i_-1VG9K9W_UrCzpcxzt3",
+  "tags": []
+}

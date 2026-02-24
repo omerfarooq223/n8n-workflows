@@ -1,0 +1,216 @@
+{
+  "name": "Smart Customer Support Bot v2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "smart-support",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d29496cb-4e81-4594-a557-47a3663685ee",
+      "name": "Webhook",
+      "webhookId": "3c8bbd8f-ff9c-40df-b7ab-1811deda4236"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"minimax/minimax-m2.5\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a helpful customer support assistant. For each question you receive, provide two things in this exact JSON format: {\\\"answer\\\": \\\"your answer here\\\", \\\"category\\\": \\\"one of: Technical, Billing, General, Account\\\"}. Only respond with the JSON, nothing else.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ $json.body.question }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "66552d74-3cf7-4469-8c6d-a09fe3ed348f",
+      "name": "HTTP Request",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wrbVdIHl6qDXHiDA",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.choices[0].message.content;\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  json: {\n    question: $('Webhook').item.json.body.question,\n    answer: parsed.answer,\n    category: parsed.category,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a0d14c43-df3c-4c75-b6ba-04386e731a4b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lia_9CUyIvxUXsqmd0H9IgVvJafpJoXPDdvef8bkil8",
+          "mode": "list",
+          "cachedResultName": "Smart Customer Support Bot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lia_9CUyIvxUXsqmd0H9IgVvJafpJoXPDdvef8bkil8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lia_9CUyIvxUXsqmd0H9IgVvJafpJoXPDdvef8bkil8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "question": "={{ $json.question }}",
+            "answer": "={{ $json.answer }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "category": "={{ $json.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        0
+      ],
+      "id": "ddfbbaec-2f2e-4fd7-a15e-fb4a4c7d3f70",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9rVrf7qz6P0r4nrn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        768,
+        0
+      ],
+      "id": "e8a89009-c1af-40a3-8cf1-bb9bff0dd282",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "b2feba10-3d38-4c64-93dd-5ab932a687ce",
+  "meta": {
+    "instanceId": "0b8e40bf5deae16f54291e158ce45e46f26103e0aa984221bc27ce19388c7321"
+  },
+  "id": "l1UqnSrWW4dAtwIAaA3B2",
+  "tags": []
+}

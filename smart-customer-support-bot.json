@@ -1,0 +1,186 @@
+{
+  "name": "Smart Customer Support Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "4433",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "45091213-3fd9-490f-aa60-ef90743a42c9",
+      "name": "Webhook",
+      "webhookId": "7f50db14-377b-4433-b022-ca4772a092ad"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"minimax/minimax-m2.5\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a helpful customer support assistant. Be polite, concise and helpful.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ $json.body.message }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b1683c93-fa72-48f6-9750-1632dcee33dc",
+      "name": "HTTP Request",
+      "credentials": {
+        "openRouterApi": {
+          "id": "wrbVdIHl6qDXHiDA",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "19ugMraInuTUpZsFCs0tVRfYLuWsXWI3HA2orDI8DIMs",
+          "mode": "list",
+          "cachedResultName": "Customer Support Bot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19ugMraInuTUpZsFCs0tVRfYLuWsXWI3HA2orDI8DIMs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19ugMraInuTUpZsFCs0tVRfYLuWsXWI3HA2orDI8DIMs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "customer_message": "={{ $('Webhook').item.json.body.message }}",
+            "timestamp": "={{ new Date().toISOString() }}",
+            "bot_response": "={{ $('HTTP Request').item.json.choices[0].message.content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "customer_message",
+              "displayName": "customer_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bot_response",
+              "displayName": "bot_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "559e885e-7da0-41d0-9d1b-ab79915bb660",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9rVrf7qz6P0r4nrn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response\": \"={{ $('HTTP Request').item.json.choices[0].message.content }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "95146af6-359d-4d09-96bb-eed15981b355",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "eff5e2ab-0cfc-47c1-bed9-85331f32c77c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b8e40bf5deae16f54291e158ce45e46f26103e0aa984221bc27ce19388c7321"
+  },
+  "id": "EU6S7Ni2wTFo_s962RHqH",
+  "tags": []
+}

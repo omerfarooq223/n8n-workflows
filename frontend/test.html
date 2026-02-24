@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support Bot Tester</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { width: 100%; max-width: 700px; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 8px; font-size: 24px; color: #7c3aed; }
+        p.subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 14px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; border: 1px solid #334155; border-radius: 8px; background: #1e293b; color: #94a3b8; cursor: pointer; text-align: center; font-size: 13px; transition: all 0.2s; }
+        .tab.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+        .chat-box { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; }
+        .messages { height: 400px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+        .message.user { background: #7c3aed; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message.bot { background: #334155; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.bot .category { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: #7c3aed; color: white; }
+        .message.loading { color: #94a3b8; font-style: italic; }
+        .input-area { display: flex; gap: 10px; padding: 16px; border-top: 1px solid #334155; }
+        input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 14px; outline: none; }
+        input:focus { border-color: #7c3aed; }
+        button { padding: 12px 20px; background: #7c3aed; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        button:hover { background: #6d28d9; }
+        button:disabled { background: #334155; cursor: not-allowed; }
+        .empty { text-align: center; color: #475569; margin: auto; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🤖 Support Bot Tester</h1>
+    <p class="subtitle">Test your n8n customer support workflows</p>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchBot('v1')">Support Bot v1</div>
+        <div class="tab" onclick="switchBot('v2')">Support Bot v2 (with Categories)</div>
+    </div>
+
+    <div class="chat-box">
+        <div class="messages" id="messages">
+            <div class="empty" id="empty">Send a message to start testing...</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="input" placeholder="e.g. How do I reset my password?" onkeydown="if(event.key==='Enter') sendMessage()"/>
+            <button onclick="sendMessage()" id="sendBtn">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentBot = 'v1';
+    const urls = {
+        v1: 'http://localhost:5678/webhook/support-bot',
+        v2: 'http://localhost:5678/webhook/smart-support'
+    };
+
+    function switchBot(bot) {
+        currentBot = bot;
+        document.querySelectorAll('.tab').forEach((t, i) => {
+            t.classList.toggle('active', (i === 0 && bot === 'v1') || (i === 1 && bot === 'v2'));
+        });
+        document.getElementById('messages').innerHTML = '<div class="empty" id="empty">Send a message to start testing...</div>';
+    }
+
+    function addMessage(text, type, category = null) {
+        const empty = document.getElementById('empty');
+        if (empty) empty.remove();
+        const messages = document.getElementById('messages');
+        const div = document.createElement('div');
+        div.className = `message ${type}`;
+        div.innerHTML = text;
+        if (category) div.innerHTML += `<br><span class="category">📁 ${category}</span>`;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+        return div;
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('input');
+        const btn = document.getElementById('sendBtn');
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        input.value = '';
+        btn.disabled = true;
+
+        const loading = addMessage('Thinking...', 'bot loading');
+
+        try {
+            const field = currentBot === 'v1' ? 'message' : 'question';
+            const body = {};
+            body[field] = text;
+
+            const res = await fetch(urls[currentBot], {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+            loading.remove();
+
+            if (currentBot === 'v1') {
+                addMessage(data.response || JSON.stringify(data), 'bot');
+            } else {
+                addMessage(data.answer || JSON.stringify(data), 'bot', data.category);
+            }
+        } catch (err) {
+            loading.remove();
+            addMessage('Error: Make sure your workflow is active in n8n!', 'bot');
+        }
+
+        btn.disabled = false;
+        input.focus();
+    }
+</script>
+</body>
+</html>

@@ -64,3 +64,5 @@ curl -X POST http://localhost:5678/webhook/smart-support \
 - [n8n](https://n8n.io) - Workflow automation
 - [OpenRouter](https://openrouter.ai) - AI model access
 - [Google Sheets](https://sheets.google.com) - Data logging
+
+Author: Muhammad Umar Farooq
